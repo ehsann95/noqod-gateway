@@ -15,9 +15,9 @@
   }
 
   function injectIframe(gatewayUrl, urlParams) {
-    let body = document.body;
+    let iframeContainer = document.getElementById("iframe");
     let iframeUrl = `${gatewayUrl}${urlParams}`;
-    body.innerHTML = `
+    iframeContainer.innerHTML = `
                   <div
                     id="iframee"
                     style="
