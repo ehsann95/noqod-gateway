@@ -1,16 +1,17 @@
 (function (global) {
-  const npg = function (merchant_id) {
-    return new npg.init(merchant_id);
+  const npg = function (merchant_id, token) {
+    return new npg.init(merchant_id, token);
   };
 
-  npg.init = function (merchant_id) {
+  npg.init = function (merchant_id, token) {
     let self = this;
     self.merchant_id = merchant_id;
+    self.token = token;
   };
 
-  function sendPaymentRequest(merchant_id, amount, order_id, callback) {
+  function sendPaymentRequest(merchant_id, amount, order_id, callback, token) {
     let gatewayUrl = "https://epic-lumiere-bcf712.netlify.app/";
-    let urlParams = `?merchant_id=${merchant_id}&amount=${amount}&order_id=${order_id}&callback=${callback}`;
+    let urlParams = `?merchant_id=${merchant_id}&amount=${amount}&order_id=${order_id}&callback=${callback}&token=${token}`;
     injectIframe(gatewayUrl, urlParams);
   }
 
@@ -41,7 +42,13 @@
 
   npg.prototype = {
     sendRequest: function (amount, order_id, callback) {
-      sendPaymentRequest(this.merchant_id, amount, order_id, callback);
+      sendPaymentRequest(
+        this.merchant_id,
+        amount,
+        order_id,
+        callback,
+        this.token
+      );
     },
   };
 
