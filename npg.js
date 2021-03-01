@@ -3464,14 +3464,15 @@
     self.token = token;
   };
 
-  function sendPaymentRequest(merchant_id, amount, order_id, callback, token) {
+  function sendPaymentRequest(
+    merchant_id,
+    amount,
+    order_id,
+    callback,
+    token,
+    key
+  ) {
     let gatewayUrl = "https://epic-lumiere-bcf712.netlify.app/";
-
-    let encryptData = { merchant_id, amount, order_id, token };
-    let key = CryptoJS.PBKDF2(JSON.stringify(encryptData), merchant_id, {
-      keySize: 256 / 32,
-      iterations: 1000,
-    }).toString();
 
     let urlParams = `?merchant_id=${merchant_id}&amount=${amount}&order_id=${order_id}&callback=${callback}&token=${token}&key=${key}`;
     injectIframe(gatewayUrl, urlParams);
@@ -3481,27 +3482,27 @@
     let iframeContainer = document.getElementById("iframe");
     let iframeUrl = `${gatewayUrl}${urlParams}`;
     iframeContainer.innerHTML = `
-                      <div
-                        id="iframee"
-                        style="
-                          background-color: rgba(0, 0, 0, 0.5);
-                          height: 100vh;
-                          width: 100vw;
-                          position: absolute;
-                          top: 0;
-                          left: 0;
-                          display: flex;
-                          justify-content: center;
-                          align-items: center
-                        "
-                      >
-                        <iframe
-                          id="gateway-iframe"
-                          name="gateway-iframe"
-                          style="width: 500px; height: 650px; border:none; padding: 0px; overflow-x: hidden;"
-                          src=${iframeUrl}
-                        />
-                      </div>`;
+                    <div
+                      id="iframee"
+                      style="
+                        background-color: rgba(0, 0, 0, 0.5);
+                        height: 100vh;
+                        width: 100vw;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center
+                      "
+                    >
+                      <iframe
+                        id="gateway-iframe"
+                        name="gateway-iframe"
+                        style="width: 500px; height: 650px; border:none; padding: 0px; overflow-x: hidden;"
+                        src=${iframeUrl}
+                      />
+                    </div>`;
   }
 
   window.addEventListener("message", removeIframe, false);
@@ -3514,14 +3515,23 @@
   }
 
   npg.prototype = {
-    sendRequest: function (amount, order_id, callback) {
+    sendRequest: function (amount, order_id, callback, key) {
       sendPaymentRequest(
         this.merchant_id,
         amount,
         order_id,
         callback,
-        this.token
+        this.token,
+        key
       );
+    },
+    hashInfo: function (merchant_id, amount, order_id) {
+      let encryptData = { merchant_id, amount, order_id };
+      let key = CryptoJS.PBKDF2(JSON.stringify(encryptData), merchant_id, {
+        keySize: 256 / 32,
+        iterations: 1000,
+      }).toString();
+      return key;
     },
   };
 
